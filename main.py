@@ -1,0 +1,1 @@
+TOKEN = open("token.txt").read()
