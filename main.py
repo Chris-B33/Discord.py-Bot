@@ -1,10 +1,14 @@
-import discord.ext.commands
+import discord
+from discord.ext import commands
+
 
 TOKEN           = open("token.txt", "r").readline()
 DEFAULT_ROLE    = "Newcomers"
+DEFAULT_PERMS   = discord.Permissions(permissions=0)
 DEFAULT_MSG     = "Welcome to the server! Hope you enjoy your stay :D"
 
 client = discord.ext.commands.Bot(command_prefix="a!")
+
 
 @client.event
 async def on_ready():
@@ -22,7 +26,15 @@ async def on_member_join(member):
             break
     else:
         role = await member.guild.create_role(name=DEFAULT_ROLE,
-                                              colour=discord.Colour(0xf8f8f8))
-        await member.add_roles(role)
+                                              colour=discord.Colour(0xf8f8f8),
+                                              permissions=DEFAULT_PERMS)
+        for member in member.guild.members:
+            await member.add_roles(role)
+
+@client.event
+async def on_guild_remove(guild):
+    owner = guild.owner
+    await owner.send("Alright then, I see how it is ;(")
+
 
 client.run(TOKEN)
