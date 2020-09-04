@@ -1,0 +1,12 @@
+{
+  "token": "Your token here",
+  "welcome": "Welcome to the server! Hope you enjoy your stay :D",
+  "role": {
+    "name": "Newcomers",
+    "colour": "0xf8f8f8",
+    "perms": 8,
+    "hoist": "True",
+    "mentionable": "True",
+    "reason": "Default Role"
+  }
+}
