@@ -77,19 +77,29 @@ async def create_server(ctx, num: int):
 
 @client.command()
 async def join(ctx):
+    # Joins channel
     try:
+        voice = check_for_client(ctx)
         channel = ctx.author.voice.channel
-        await channel.connect()
+        if voice == False:
+            await channel.connect()
+        else:
+            # If already in the same chat
+            await ctx.send("I'm already in the same chat :/")
     except:
+        # If message author not in a chat
         await ctx.send("You are not currently in a channel...")
 
 @client.command()
 async def leave(ctx):
     try:
-        for voice in client.voice_clients:
-            if voice.guild == ctx.message.guild:
-                await voice.disconnect()
+        voice = check_for_client(ctx)
+        if not voice == False:
+            await voice.disconnect()
+        else:
+            raise Exception
     except:
+        # Not in a channel
         await ctx.send("I am not currently in a channel...")
 
 
@@ -103,6 +113,13 @@ def create_new_role(server, role: dict):
         reason      = role["reason"]
     )
     return role
+
+def check_for_client(ctx):
+    for voice in client.voice_clients:
+        if voice.guild == ctx.message.guild:
+            return voice
+    else:
+        return False
 
 
 client.run(settings["token"])
