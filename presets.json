@@ -5,7 +5,7 @@
         {
           "name": "Text Channels",
           "channels": [
-            ["announcements", "ann"],
+            ["announcements", "t"],
             ["general", "t"],
             ["bots", "t"]
           ]
@@ -15,7 +15,7 @@
           "name": "Voice Channels",
           "channels": [
             ["General", "v"],
-            ["AFK", "afk"]
+            ["AFK", "v"]
           ]
         }
       ]
@@ -27,7 +27,7 @@
           "name": "Notice Board",
           "channels": [
             ["welcome", "t"],
-            ["announcements", "ann"],
+            ["announcements", "t"],
             ["rules", "t"]
           ]
         },
@@ -48,7 +48,7 @@
             ["General", "v"],
             ["Mobile", "v"],
             ["Private", "v"],
-            ["AFK", "afk"]
+            ["AFK", "v"]
           ]
         }
       ]
@@ -59,7 +59,7 @@
         {
           "name": "Notice Board",
           "channels": [
-            ["welcome", "ann"],
+            ["welcome", "t"],
             ["announcements", "t"],
             ["rules", "t"]
           ]
@@ -80,7 +80,7 @@
             ["General", "v"],
             ["Mobile", "v"],
             ["Private", "v"],
-            ["AFK", "afk"]
+            ["AFK", "v"]
           ]
         },
         {

@@ -1,4 +1,4 @@
-import discord, json, threading, time, datetime
+import discord, json
 from discord.ext.commands import Bot
 
 
@@ -18,7 +18,7 @@ async def on_member_join(member):
 
     # Checks if default role is present
     for role in member.guild.roles:
-        name = settings["role"]["name"]
+        name = settings["default"]["name"]
         if role.name == name:
             role = discord.utils.get(member.guild.roles, name=name)
             await member.add_roles(role)
@@ -27,6 +27,10 @@ async def on_member_join(member):
         default = create_new_role(member.guild, settings["default"])
         for member in member.guild.members:
             await member.add_roles(default)
+
+@client.event
+async def on_member_join(member):
+    await member.send(settings["leave"])
 
 @client.event
 async def on_guild_remove(guild):
@@ -65,14 +69,28 @@ async def create_server(ctx, num: int):
         for channel in category["channels"]:
             if channel[1] == "t":
                 await guild.create_text_channel(name=channel[0], category=cat)
-            elif channel[1] == "v":
-                await guild.create_voice_channel(name=channel[0], category=cat)
-            elif channel[1] == "ann":
-                await guild.create_text_channel(name=channel[0], category=cat)
             else:
                 await guild.create_voice_channel(name=channel[0], category=cat)
 
     await ctx.send("Done!")
+
+
+@client.command()
+async def join(ctx):
+    try:
+        channel = ctx.author.voice.channel
+        await channel.connect()
+    except:
+        await ctx.send("You are not currently in a channel...")
+
+@client.command()
+async def leave(ctx):
+    try:
+        for voice in client.voice_clients:
+            if voice.guild == ctx.message.guild:
+                await voice.disconnect()
+    except:
+        await ctx.send("I am not currently in a channel...")
 
 
 def create_new_role(server, role: dict):
