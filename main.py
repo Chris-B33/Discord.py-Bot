@@ -1,4 +1,4 @@
-import discord, json, youtube_dl
+import discord, json
 from discord.ext import commands
 
 
@@ -8,6 +8,7 @@ REMOVED = "Alright then, I see how it is ;("
 
 
 class Bot(commands.Bot):
+
     def __init__(self, prefix):
         super().__init__(
             command_prefix=commands.when_mentioned_or(prefix)
@@ -15,30 +16,87 @@ class Bot(commands.Bot):
         with open("roles.json", "r") as data:
             self.roles = json.load(data)
 
+
     async def on_ready(self):
         print(f"{bot.user} connected...")
 
-    async def on_member_join(self, member):
-        await member.send(WELCOME)
 
-        # Checks if default role is present
-        for role in member.guild.roles:
+    async def on_member_join(self, member):
+        if not member.bot:
+            await member.send(WELCOME)
+
+        # Add default role if present
+        bots = discord.utils.get(member.guild.roles, name=self.roles["bots"]["name"])
+        default = discord.utils.get(member.guild.roles, name=self.roles["default"]["name"])
+
+        if member.bot:
+            await member.add_roles(bots)
+        else:
+            await member.add_roles(default)
+        '''for role in member.guild.roles:
             name = self.roles["default"]["name"]
             if role.name == name:
                 role = discord.utils.get(member.guild.roles, name=name)
                 await member.add_roles(role)
-                break
-        else:
-            default = self.create_role_from_file(member.guild, self.roles["default"])
-            for member in member.guild.members:
-                await member.add_roles(default)
+                break'''
+
 
     async def on_member_leave(self, member):
         await member.send(LEAVE)
 
+
     async def on_guild_remove(self, guild):
         owner = guild.owner
         await owner.send(REMOVED)
+
+
+class Server(commands.Cog):
+
+    def __init__(self, bot):
+        self.bot = bot
+
+
+    @commands.command(
+        brief="Creates categories and channels from an existing preset (1-3)",
+        description='''
+            Creates categories with channels inside from an existing preset specified (1-3).
+            1: Small
+            2: Medium
+            3: Large
+        '''
+    )
+    @commands.has_permissions(administrator=True)
+    async def create_server(self, ctx, num: int):
+        guild = ctx.guild
+
+        await ctx.send("Loading preset...")
+        with open("presets.json", "r") as server:
+            sets = json.load(server)
+            preset = sets["presets"][num-1]
+
+        await ctx.send("Creating roles...")
+        admin   = await self.create_role_from_file(guild, bot.roles["admin"])
+        bots    = await self.create_role_from_file(guild, bot.roles["bots"])
+        default = await self.create_role_from_file(guild, bot.roles["default"])
+
+        await guild.owner.add_roles(admin)
+        for member in guild.members:
+            if member.bot:
+                await member.add_roles(bots)
+            else:
+                await member.add_roles(default)
+
+        await ctx.send("Adding categories and channels...")
+        for category in preset["categories"]:
+            cat = await guild.create_category(category["name"])
+            for channel in category["channels"]:
+                if channel[1] == "t":
+                    await guild.create_text_channel(name=channel[0], category=cat)
+                else:
+                    await guild.create_voice_channel(name=channel[0], category=cat)
+
+        await ctx.send("Done!")
+
 
     def create_role_from_file(self, server, role):
         role = server.create_role(
@@ -52,57 +110,10 @@ class Bot(commands.Bot):
         return role
 
 
-class Server(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
-    @commands.command(
-        brief="Creates categories and channels from an existing preset (1-3)",
-        description='''
-            Creates categories with channels inside from an existing preset specified (1-3).
-            1: Small
-            2: Medium
-            3: Large
-        '''
-    )
-    async def create_server(self, ctx, num):
-        guild = ctx.guild
-
-        # Load matching preset
-        await ctx.send("Loading preset...")
-        with open("presets.json", "r") as server:
-            sets = json.load(server)
-            preset = sets["presets"][num - 1]
-
-        # Create and Add roles
-        await ctx.send("Creating roles...")
-        admin = await self.create_role_from_file(guild, self.roles["admin"])
-        bots = await self.create_role_from_file(guild, self.roles["bots"])
-        default = await self.create_role_from_file(guild, self.roles["default"])
-
-        await guild.owner.add_roles(admin)
-        for member in guild.members:
-            if member.bot:
-                await member.add_roles(bots)
-            else:
-                await member.add_roles(default)
-
-        # Create categories and channels
-        await ctx.send("Adding categories and channels...")
-        for category in preset["categories"]:
-            cat = await guild.create_category(category["name"])
-            for channel in category["channels"]:
-                if channel[1] == "t":
-                    await guild.create_text_channel(name=channel[0], category=cat)
-                else:
-                    await guild.create_voice_channel(name=channel[0], category=cat)
-
-        await ctx.send("Done!")
-
-
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
 
     @commands.command(
         brief = "Joins the message author's voice channel.",
@@ -112,17 +123,12 @@ class Music(commands.Cog):
         '''
     )
     async def join(self, ctx):
-        # Joins channel
-        try:
-            channel = ctx.author.voice.channel
-            if ctx.voice_client:
-                await channel.connect()
-            else:
-                # If already in the same chat
-                await ctx.send("I'm already in the same chat :/")
-        except:
-            # If message author not in a chat
-            await ctx.send("You are not currently in a channel...")
+        channel = ctx.author.voice.channel
+        if not ctx.voice_client:
+            await channel.connect()
+        else:
+            await ctx.send("I'm already in the same chat :/")
+
 
     @commands.command(
         brief = "Leaves the current voice channel.",
@@ -131,14 +137,10 @@ class Music(commands.Cog):
         '''
     )
     async def leave(self, ctx):
-        try:
-            if ctx.voice_client:
-                await ctx.voice_client.disconnect()
-            else:
-                raise Exception
-        except:
-            # Not in a channel
-            await ctx.send("I am not currently in a channel...")
+        if ctx.voice_client:
+            await ctx.voice_client.disconnect()
+        else:
+            await ctx.send("Bitch fuck off")
 
 
 if __name__ == "__main__":
@@ -146,5 +148,5 @@ if __name__ == "__main__":
     bot.add_cog(Music(bot))
     bot.add_cog(Server(bot))
 
-    with open("token.txt", "r") as token:
-        bot.run(token)
+    token = open("token.txt", "r").read()
+    bot.run(token)
