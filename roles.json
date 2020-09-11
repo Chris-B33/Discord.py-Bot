@@ -1,7 +1,4 @@
 {
-  "token": "Your token here",
-  "welcome": "Welcome to the server! Hope you enjoy your stay :D",
-
   "admin": {
     "name": "Admins",
     "colour": "0xff80ff",
@@ -10,7 +7,6 @@
     "mentionable": "True",
     "reason": "Admin Role"
   },
-
   "default": {
     "name": "Newcomers",
     "colour": "0x80ffff",
@@ -19,7 +15,6 @@
     "mentionable": "True",
     "reason": "Default Role"
   },
-
   "bots": {
     "name": "Bots",
     "colour": "0xffff80",
