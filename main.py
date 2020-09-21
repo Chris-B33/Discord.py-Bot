@@ -4,11 +4,11 @@ phrases = [
     "Alright then, I see how it is ;("
 ]
 
-
 from lib.server import Server
 from lib.music  import Music
 from lib.bot    import Bot
 
+print(open("art.txt", "r").read())
 
 bot = Bot("roles.json", "presets.json", "a!")
 
