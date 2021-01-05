@@ -15,5 +15,5 @@ What I mean is I want this bot to be the only bot needed in any given discord se
 - Playing Music in Voice Channels
 - Permissions management
 
-### Ideas
+## Ideas
 I would appreciate if anyone posted in the issues tab possible ideas for functions or for tips on making my code more efficient.
