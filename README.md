@@ -14,6 +14,7 @@ What I mean is I want this bot to be the only bot needed in any given discord se
 ## W.I.P Functions
 - Playing Music in Voice Channels
 - Permissions management
+- Optional Censorship and message management
 
 ## Ideas
 I would appreciate if anyone posted in the issues tab possible ideas for functions or for tips on making my code more efficient.
