@@ -1,7 +1,6 @@
 # Discord.py-Bot
 
 This is a Bot designed by myself to try incorporate as many different functions as possible. 
-What I mean is I want this bot to be the only bot needed in any given discord server!
 
 ## Current Functions
 - Channel and Category creation
